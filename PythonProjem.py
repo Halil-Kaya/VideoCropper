@@ -1,19 +1,20 @@
 
 
 from PyQt5.QtWidgets import QFileDialog
-
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-
 import cv2
 import sys
 import os
 
 class Ui_Form(object):
+
+
+
     def setupUi(self, Form):
         self.videoKapat = False
         self.videoDur = False
-        self.bisi = 1
+        self.videoSecildiMi = False
+        self.videoSuresi = 1
 
 
         Form.setObjectName("Form")
@@ -97,6 +98,32 @@ class Ui_Form(object):
         self.label_6.setFont(font)
         self.label_6.setObjectName("label_6")
 
+        self.uyari = QtWidgets.QLabel(self.frame)
+        self.uyari.setGeometry(QtCore.QRect(180, 10, 321, 21))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setItalic(True)
+        self.uyari.setFont(font)
+        self.uyari.setObjectName("uyari")
+
+        self.groupBox = QtWidgets.QGroupBox(self.frame)
+        self.groupBox.setGeometry(QtCore.QRect(490, 50, 71, 101))
+        self.groupBox.setObjectName("groupBox")
+        self.hzCeyrek = QtWidgets.QRadioButton(self.groupBox)
+        self.hzCeyrek.setGeometry(QtCore.QRect(0, 20, 104, 21))
+        self.hzCeyrek.setObjectName("hzCeyrek")
+        self.hzNormal = QtWidgets.QRadioButton(self.groupBox)
+        self.hzNormal.setGeometry(QtCore.QRect(0, 40, 61, 21))
+        self.hzNormal.setObjectName("hzNormal")
+        self.hzYuksekCeyrek = QtWidgets.QRadioButton(self.groupBox)
+        self.hzYuksekCeyrek.setGeometry(QtCore.QRect(0, 60, 61, 21))
+        self.hzYuksekCeyrek.setObjectName("hzYuksekCeyrek")
+        self.hzIkiKati = QtWidgets.QRadioButton(self.groupBox)
+        self.hzIkiKati.setGeometry(QtCore.QRect(0, 80, 41, 16))
+        self.hzIkiKati.setObjectName("hzIkiKati")
+
+
+
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
@@ -124,8 +151,7 @@ class Ui_Form(object):
         self.label_3.setText(_translate("Form", "Toplam Frame:"))
         self.label_4.setText(_translate("Form", "Başlangıç: "))
         self.label_5.setText(_translate("Form", "Bitiş:"))
-
-
+        self.uyari.setText(_translate("Form", ""))
 
 
         self.grayRadioBtn.setText(_translate("Form", "GRAY"))
@@ -136,15 +162,43 @@ class Ui_Form(object):
         self.luvRadioBtn.setText(_translate("Form", "LUV"))
         self.rgbRadioBtn.setText(_translate("Form", "RGB"))
         self.yuvRadioBtn.setText(_translate("Form", "YUV"))
+
+        self.grayRadioBtn.clicked.connect(self.setFrame)
+        self.hsvRadioBtn.clicked.connect(self.setFrame)
+        self.normalRadioBtn.clicked.connect(self.setFrame)
+        self.hlsRadioBtn.clicked.connect(self.setFrame)
+        self.labRadioBtn.clicked.connect(self.setFrame)
+        self.luvRadioBtn.clicked.connect(self.setFrame)
+        self.rgbRadioBtn.clicked.connect(self.setFrame)
+        self.yuvRadioBtn.clicked.connect(self.setFrame)
+
+        self.groupBox.setTitle(_translate("Form", "Video Hızı"))
+        self.hzCeyrek.setText(_translate("Form", "0x5"))
+        self.hzNormal.setText(_translate("Form", "1"))
+        self.hzYuksekCeyrek.setText(_translate("Form", "1x5"))
+        self.hzIkiKati.setText(_translate("Form", "2"))
+
+
+        self.hzCeyrek.clicked.connect(self.videoSureAyarla)
+        self.hzNormal.clicked.connect(self.videoSureAyarla)
+        self.hzYuksekCeyrek.clicked.connect(self.videoSureAyarla)
+        self.hzIkiKati.clicked.connect(self.videoSureAyarla)
+
+
+
         self.label_6.setText(_translate("Form", "Video ismi"))
 
         self.normalRadioBtn.setChecked(True)
+
+        self.hzNormal.setChecked(True)
 
 
     def PlayVideo(self):
             self.videoKapat = False
             self.videoDur = False
 
+            if self.videoSecildiMi == False:
+                return
 
 
             video = cv2.VideoCapture(self.dosyaPath[0])
@@ -152,6 +206,12 @@ class Ui_Form(object):
             self.fps = video.get(cv2.CAP_PROP_FPS)
             self.frameSayisi = video.get(cv2.CAP_PROP_FRAME_COUNT)
             self.vidonunSuresi = float(self.frameSayisi) / float(self.fps)
+
+
+
+            self.fps = int(self.fps)
+            self.frameSayisi = int(self.frameSayisi)
+            self.vidonunSuresi = int(self.vidonunSuresi)
 
             labelFps = "Fps: " + str(self.fps)
             labelVideoSuresi = "Video Süresi: " + str(self.vidonunSuresi)
@@ -164,7 +224,7 @@ class Ui_Form(object):
             self.baslangic.setText("0")
             self.bitis.setText(str( int(self.vidonunSuresi) ))
 
-
+            self.videoSuresi = self.fps
 
             while True:
 
@@ -173,63 +233,74 @@ class Ui_Form(object):
 
                 if self.videoDur == False:
 
-                    deger, frame = video.read()
-
+                    deger, self.normalFrame = video.read()
+                    self.frame = self.normalFrame
                     if deger == True:
 
-                        if self.normalRadioBtn.isChecked():
-                            pass
-                        elif self.grayRadioBtn.isChecked():
-                            frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+                        self.setFrame()
 
-                        elif self.hsvRadioBtn.isChecked():
-                            frame = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
-
-                        elif self.hlsRadioBtn.isChecked():
-                            frame = cv2.cvtColor(frame,cv2.COLOR_BGR2HLS)
-
-                        elif self.labRadioBtn.isChecked():
-                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
-
-                        elif self.luvRadioBtn.isChecked():
-                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2LUV)
-
-                        elif self.rgbRadioBtn.isChecked():
-                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-                        elif self.yuvRadioBtn.isChecked():
-                            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2YUV)
-
-
-                        frame = cv2.resize(frame, (500, 350))
-
-                        cv2.imshow("Video", frame)
+                        cv2.imshow("Video", self.frame)
                         cv2.moveWindow("Video", 20, 20)
-
-
 
                     else:
                         break
-
-                cv2.waitKey(int(self.fps))
-
-
-
+                cv2.waitKey(int(self.videoSuresi))
+                print(self.videoSuresi)
 
             video.release()
             cv2.destroyAllWindows()
+
+
+    def setFrame(self):
+
+        if self.videoKapat == True:
+            return
+
+        if self.normalRadioBtn.isChecked():
+            self.frame = self.normalFrame
+        elif self.grayRadioBtn.isChecked():
+            self.frame = cv2.cvtColor(self.normalFrame, cv2.COLOR_BGR2GRAY)
+
+        elif self.hsvRadioBtn.isChecked():
+            self.frame = cv2.cvtColor(self.normalFrame, cv2.COLOR_BGR2HSV)
+
+        elif self.hlsRadioBtn.isChecked():
+            self.frame = cv2.cvtColor(self.normalFrame, cv2.COLOR_BGR2HLS)
+
+        elif self.labRadioBtn.isChecked():
+            self.frame = cv2.cvtColor(self.normalFrame, cv2.COLOR_BGR2LAB)
+
+        elif self.luvRadioBtn.isChecked():
+            self.frame = cv2.cvtColor(self.normalFrame, cv2.COLOR_BGR2LUV)
+
+        elif self.rgbRadioBtn.isChecked():
+            self.frame = cv2.cvtColor(self.normalFrame, cv2.COLOR_BGR2RGB)
+
+        elif self.yuvRadioBtn.isChecked():
+            self.frame = cv2.cvtColor(self.normalFrame, cv2.COLOR_BGR2YUV)
+
+        self.frame = cv2.resize(self.frame, (500, 350))
+
+        cv2.imshow("Video", self.frame)
 
 
 
 
     def Play(self):
         self.videoDur = False
-        self.bisi = 30
 
 
     def VideoSec(self):
         self.dosyaPath = QFileDialog.getOpenFileName(None, "Dosya Aç", os.getenv("HOME"))
         print(self.dosyaPath)
+        if(self.dosyaPath[0] == ""):
+            self.videoSecildiMi = False
+            self.uyari.setText("Video Secin")
+        else:
+            self.videoSecildiMi = True
+            self.uyari.setText(self.dosyaPath[0])
+
+
 
     def Stop(self):
         self.videoKapat = True
@@ -242,6 +313,18 @@ class Ui_Form(object):
     def SaveVideo(self):
         print("save video")
         self.filePath = QFileDialog.getExistingDirectory(None, "Get Any File")
+
+
+    def videoSureAyarla(self):
+
+        if self.hzCeyrek.isChecked():
+            self.videoSuresi = self.fps*2
+        elif self.hzNormal.isChecked():
+            self.videoSuresi = self.fps
+        elif self.hzYuksekCeyrek.isChecked():
+            self.videoSuresi = self.fps -self.fps*0.25
+        elif self.hzIkiKati.isChecked():
+            self.videoSuresi = self.fps*0.5
 
 
 

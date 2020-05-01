@@ -48,15 +48,24 @@ class Ui_Form(object):
         self.label_4 = QtWidgets.QLabel(self.frame)
         self.label_4.setGeometry(QtCore.QRect(90, 220, 71, 16))
         self.label_4.setObjectName("label_4")
-        self.baslangic = QtWidgets.QTextEdit(self.frame)
-        self.baslangic.setGeometry(QtCore.QRect(170, 220, 81, 20))
-        self.baslangic.setObjectName("textEdit")
         self.label_5 = QtWidgets.QLabel(self.frame)
         self.label_5.setGeometry(QtCore.QRect(310, 220, 58, 16))
         self.label_5.setObjectName("label_5")
-        self.bitis = QtWidgets.QTextEdit(self.frame)
+
+
+        self.baslangic = QtWidgets.QSpinBox(Form)
+        self.baslangic.setGeometry(QtCore.QRect(170, 220, 81, 20))
+        self.baslangic.setObjectName("spinBox")
+        self.bitis = QtWidgets.QSpinBox(Form)
         self.bitis.setGeometry(QtCore.QRect(360, 220, 111, 21))
-        self.bitis.setObjectName("textEdit_2")
+        self.bitis.setObjectName("spinBox_2")
+
+        self.baslangic.valueChanged.connect(self.baslangicDegerDegisti)
+
+
+
+
+
         self.pushButton_5 = QtWidgets.QPushButton(self.frame)
         self.pushButton_5.setGeometry(QtCore.QRect(250, 470, 131, 28))
         self.pushButton_5.setObjectName("pushButton_5")
@@ -154,6 +163,8 @@ class Ui_Form(object):
         self.uyari.setText(_translate("Form", ""))
 
 
+
+
         self.grayRadioBtn.setText(_translate("Form", "GRAY"))
         self.hsvRadioBtn.setText(_translate("Form", "HSV"))
         self.normalRadioBtn.setText(_translate("Form", "NORMAL"))
@@ -221,10 +232,12 @@ class Ui_Form(object):
             self.label_2.setText(_translate("Form", labelVideoSuresi))
             self.label_3.setText(_translate("Form", labelToplamFrame))
 
-            self.baslangic.setText("0")
-            self.bitis.setText(str( int(self.vidonunSuresi) ))
+            self.baslangic.setRange(0,int(self.vidonunSuresi))
+            self.bitis.setRange(0,int(self.vidonunSuresi))
 
-            self.videoSuresi = self.fps
+            self.bitis.setValue(int(self.vidonunSuresi))
+
+            self.videoHizi = self.fps
 
             while True:
 
@@ -244,8 +257,8 @@ class Ui_Form(object):
 
                     else:
                         break
-                cv2.waitKey(int(self.videoSuresi))
-                print(self.videoSuresi)
+                cv2.waitKey(int(self.videoHizi))
+                print(self.videoHizi)
 
             video.release()
             cv2.destroyAllWindows()
@@ -314,17 +327,26 @@ class Ui_Form(object):
         print("save video")
         self.filePath = QFileDialog.getExistingDirectory(None, "Get Any File")
 
+        if self.filePath[0] != "":
+
+            print(self.baslangic.objectName())
+            print(self.bitis.accessibleName())
 
     def videoSureAyarla(self):
 
         if self.hzCeyrek.isChecked():
-            self.videoSuresi = self.fps*2
+            self.videoHizi = self.fps*2
         elif self.hzNormal.isChecked():
-            self.videoSuresi = self.fps
+            self.videoHizi = self.fps
         elif self.hzYuksekCeyrek.isChecked():
-            self.videoSuresi = self.fps -self.fps*0.25
+            self.videoHizi = self.fps -self.fps*0.25
         elif self.hzIkiKati.isChecked():
-            self.videoSuresi = self.fps*0.5
+            self.videoHizi = self.fps*0.5
+
+
+
+    def baslangicDegerDegisti(self):
+        self.bitis.setRange(self.baslangic.value(), self.vidonunSuresi)
 
 
 

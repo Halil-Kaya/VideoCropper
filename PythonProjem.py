@@ -69,9 +69,11 @@ class Ui_Form(object):
         self.pushButton_5 = QtWidgets.QPushButton(self.frame)
         self.pushButton_5.setGeometry(QtCore.QRect(250, 470, 131, 28))
         self.pushButton_5.setObjectName("pushButton_5")
-        self.textEdit_3 = QtWidgets.QTextEdit(self.frame)
-        self.textEdit_3.setGeometry(QtCore.QRect(120, 440, 391, 21))
-        self.textEdit_3.setObjectName("textEdit_3")
+
+        self.videoIsmi = QtWidgets.QLineEdit(self.frame)
+        self.videoIsmi.setGeometry(QtCore.QRect(120, 440, 391, 21))
+        self.videoIsmi.setObjectName("textEdit_3")
+
         self.pushButton_6 = QtWidgets.QPushButton(self.frame)
         self.pushButton_6.setGeometry(QtCore.QRect(220, 40, 191, 28))
         self.pushButton_6.setObjectName("pushButton_6")
@@ -252,13 +254,13 @@ class Ui_Form(object):
 
                         self.setFrame()
 
+
                         cv2.imshow("Video", self.frame)
                         cv2.moveWindow("Video", 20, 20)
 
                     else:
                         break
                 cv2.waitKey(int(self.videoHizi))
-                print(self.videoHizi)
 
             video.release()
             cv2.destroyAllWindows()
@@ -305,13 +307,14 @@ class Ui_Form(object):
 
     def VideoSec(self):
         self.dosyaPath = QFileDialog.getOpenFileName(None, "Dosya Aç", os.getenv("HOME"))
-        print(self.dosyaPath)
+
         if(self.dosyaPath[0] == ""):
             self.videoSecildiMi = False
             self.uyari.setText("Video Secin")
         else:
             self.videoSecildiMi = True
             self.uyari.setText(self.dosyaPath[0])
+            self.PlayVideo()
 
 
 
@@ -324,13 +327,71 @@ class Ui_Form(object):
         pass
 
     def SaveVideo(self):
-        print("save video")
+        self.videoKapat = True
         self.filePath = QFileDialog.getExistingDirectory(None, "Get Any File")
 
-        if self.filePath[0] != "":
+        kaydetmeIsmi = self.videoIsmi.text()
 
-            print(self.baslangic.objectName())
-            print(self.bitis.accessibleName())
+        if self.filePath[0] != "" and len(kaydetmeIsmi)>0:
+
+            kaydetmeIsmi = kaydetmeIsmi + ".mp4"
+            kaydedilecekYer = self.filePath+"/"+kaydetmeIsmi
+            out = cv2.VideoWriter(kaydedilecekYer, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), self.fps, (500, 350))
+
+            totalFrame = []
+
+            cap = cv2.VideoCapture(self.dosyaPath[0])
+
+
+            while (True):
+                ret, frame = cap.read()
+
+                if ret == True:
+                    if self.normalRadioBtn.isChecked():
+                        pass
+                    elif self.grayRadioBtn.isChecked():
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+                    elif self.hsvRadioBtn.isChecked():
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+                    elif self.hlsRadioBtn.isChecked():
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HLS)
+
+                    elif self.labRadioBtn.isChecked():
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
+
+                    elif self.luvRadioBtn.isChecked():
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2LUV)
+
+                    elif self.rgbRadioBtn.isChecked():
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+                    elif self.yuvRadioBtn.isChecked():
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2YUV)
+
+
+                    frame = cv2.resize(frame, (500, 350))
+
+                    totalFrame.append(frame)
+                else:
+                    break
+
+            totalFrame = totalFrame[int(self.fps * self.baslangic.value()):int(self.fps * self.bitis.value())]
+
+            for i in totalFrame:
+                out.write(i)
+
+            cap.release()
+            out.release()
+
+            # Closes all the frames
+            cv2.destroyAllWindows()
+
+
+
+
+
 
     def videoSureAyarla(self):
 
@@ -347,6 +408,7 @@ class Ui_Form(object):
 
     def baslangicDegerDegisti(self):
         self.bitis.setRange(self.baslangic.value(), self.vidonunSuresi)
+
 
 
 

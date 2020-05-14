@@ -149,11 +149,11 @@ class Ui_Form(object):
         self.pushButton_5.setText(_translate("Form", "Videoyu Kaydet"))
         self.pushButton_6.setText(_translate("Form", "Videoyu Baslat"))
 
-        self.pushButton.clicked.connect(self.VideoSec)
-        self.pushButton_2.clicked.connect(self.Play)
-        self.pushButton_3.clicked.connect(self.Pause)
-        self.pushButton_4.clicked.connect(self.Stop)
-        self.pushButton_5.clicked.connect(self.SaveVideo)
+        self.pushButton.clicked.connect(self.videoSec)
+        self.pushButton_2.clicked.connect(self.play)
+        self.pushButton_3.clicked.connect(self.pause)
+        self.pushButton_4.clicked.connect(self.stop)
+        self.pushButton_5.clicked.connect(self.saveVideo)
         self.pushButton_6.clicked.connect(self.PlayVideo)
 
 
@@ -256,7 +256,6 @@ class Ui_Form(object):
 
 
                         cv2.imshow("Video", self.frame)
-                        cv2.moveWindow("Video", 20, 20)
 
                     else:
                         break
@@ -301,11 +300,11 @@ class Ui_Form(object):
 
 
 
-    def Play(self):
+    def play(self):
         self.videoDur = False
 
 
-    def VideoSec(self):
+    def videoSec(self):
         self.dosyaPath = QFileDialog.getOpenFileName(None, "Dosya Aç", os.getenv("HOME"))
 
         if(self.dosyaPath[0] == ""):
@@ -318,15 +317,15 @@ class Ui_Form(object):
 
 
 
-    def Stop(self):
+    def stop(self):
         self.videoKapat = True
         pass
 
-    def Pause(self):
+    def pause(self):
         self.videoDur = True
         pass
 
-    def SaveVideo(self):
+    def saveVideo(self):
         self.videoKapat = True
         self.filePath = QFileDialog.getExistingDirectory(None, "Get Any File")
 
